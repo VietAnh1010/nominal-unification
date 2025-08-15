@@ -1,2 +1,3 @@
 (library
- (name nominal_unification))
+ (name nominal_unification)
+ (modules syntax permutation fresh equal unify))
