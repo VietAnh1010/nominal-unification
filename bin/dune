@@ -1,0 +1,4 @@
+(executable
+ (public_name nominal-unification)
+ (name main)
+ (libraries nominal_unification))
