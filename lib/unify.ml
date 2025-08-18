@@ -26,7 +26,8 @@ let unify_fresh_step (st : unification_state) (a : ident) (t : term) : (unificat
   | TAtom _ ->
       Result.ok st
   | TUvar (pi, x) ->
-      let st = {st with us_freshness_env = (Permutation.apply_ident (List.rev pi) a, x) :: st.us_freshness_env} in
+      let env = [(Permutation.apply_ident (List.rev pi) a, x)] in
+      let st = {st with us_freshness_env = env @ st.us_freshness_env} in
       Result.ok st
 
 let rec unify_fresh_loop (st : unification_state) : (unification_state, string) result =
@@ -58,6 +59,8 @@ let unify_equal_step (st : unification_state) (t1 : term) (t2 : term) : (unifica
       Result.ok st
   | TAtom a1, TAtom a2 when a1 = a2 ->
       Result.ok st
+  | TAtom a1, TAtom a2 ->
+      Result.error (Format.sprintf "cannot unify different atoms: %s and %s" (show_ident a1) (show_ident a2))
   | TUvar (pi, x), t
   | t, TUvar (pi, x) ->
       let sigma = [x, Permutation.apply_term (List.rev pi) t] in
@@ -67,7 +70,7 @@ let unify_equal_step (st : unification_state) (t1 : term) (t2 : term) : (unifica
         us_substitution = sigma @ st.us_substitution} in
       Result.ok st
   | _, _ ->
-      Result.error (Format.sprintf "cannot unify %s with %s" (show_term t1) (show_term t2))
+      Result.error (Format.sprintf "cannot unify different constructors: %s and %s" (show_term t1) (show_term t2))
 
 let rec unify_equal_loop (st : unification_state) : (unification_state, string) result =
   let open Utils.Results in
