@@ -22,7 +22,7 @@ let unify_fresh_step (st : unification_state) (a : ident) (t : term) : (unificat
       let st = {st with us_fresh_problems = (a, t1) :: (a, t2) :: st.us_fresh_problems} in
       Result.ok st
   | TAtom a' when a = a' ->
-      Result.error (Format.sprintf "%s is not free" a.ident_name)
+      Result.error (Format.sprintf "%s is not free" (show_ident a))
   | TAtom _ ->
       Result.ok st
   | TUvar (pi, x) ->
@@ -47,9 +47,9 @@ let unify_equal_step (st : unification_state) (t1 : term) (t2 : term) : (unifica
       let st = {st with us_equal_problems = (t1', t2') :: st.us_equal_problems} in
       Result.ok st
   | TAbs (a1, t1'), TAbs (a2, t2') ->
-      let t2' = Permutation.apply_term [(a1, a2)] t2' in
+      let t2'' = Permutation.apply_term [(a1, a2)] t2' in
       let st = {st with
-        us_equal_problems = (t1', t2') :: st.us_equal_problems;
+        us_equal_problems = (t1', t2'') :: st.us_equal_problems;
         us_fresh_problems = (a1, t2') :: st.us_fresh_problems} in
       Result.ok st
   | TApp (t11, t12), TApp (t21, t22)
@@ -58,17 +58,16 @@ let unify_equal_step (st : unification_state) (t1 : term) (t2 : term) : (unifica
       Result.ok st
   | TAtom a1, TAtom a2 when a1 = a2 ->
       Result.ok st
-  | TAtom a1, TAtom a2 ->
-      Result.error (Format.sprintf "cannot unify %s with %s" a1.ident_name a2.ident_name)
-  | TUvar (pi, x), _ ->
-      let sigma = [x, Permutation.apply_term (List.rev pi) t2] in
+  | TUvar (pi, x), t
+  | t, TUvar (pi, x) ->
+      let sigma = [x, Permutation.apply_term (List.rev pi) t] in
       let st = {st with
         us_equal_problems = List.map (fun (t1', t2') -> (Substitution.apply_term sigma t1', Substitution.apply_term sigma t2')) st.us_equal_problems;
         us_fresh_problems = List.map (fun (a, t') -> (a, Substitution.apply_term sigma t')) st.us_fresh_problems;
         us_substitution = sigma @ st.us_substitution} in
       Result.ok st
   | _, _ ->
-      Result.error (Format.sprintf "cannot unify!") (* TODO *)
+      Result.error (Format.sprintf "cannot unify %s with %s" (show_term t1) (show_term t2))
 
 let rec unify_equal_loop (st : unification_state) : (unification_state, string) result =
   let open Utils.Results in

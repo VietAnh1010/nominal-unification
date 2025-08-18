@@ -1,4 +1,6 @@
 (executable
  (public_name nominal-unification)
  (name main)
+ ; (modes byte)
+ ; (link_flags -linkall)
  (libraries nominal_unification))
