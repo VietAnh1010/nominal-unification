@@ -1,3 +1,4 @@
 (library
  (name nominal_unification)
- (modules syntax permutation fresh equal unify))
+ (modules syntax permutation fresh equal unify substitution utils)
+ (preprocess (pps ppx_deriving.show)))
