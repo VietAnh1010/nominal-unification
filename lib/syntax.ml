@@ -26,7 +26,7 @@ let t_abs (a : ident) (t : term) : term = TAbs (a, t)
 
 let t_app (t1 : term) (t2 : term) : term = TApp (t1, t2)
 
-let t_pair (t1 : term) (t2 : term) : term = TApp (t1, t2)
+let t_pair (t1 : term) (t2 : term) : term = TPair (t1, t2)
 
 let t_atom (a : ident) = TAtom a
 

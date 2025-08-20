@@ -21,7 +21,12 @@ let example_1 =
   let rhs = t_abs (ident "c") (t_abs (ident "d") (t_pair (t_atom (ident "c")) (t_atom (ident "d")))) in
   lhs, rhs
 
-let examples = [example_0; example_1]
+let example_2 =
+  let lhs = t_abs (ident "a") (t_app (t_atom (ident "a")) (t_atom (ident "b"))) in
+  let rhs = t_abs (ident "b") (t_app (t_atom (ident "b")) (t_atom (ident "a"))) in
+  lhs, rhs
+
+let examples = [example_0; example_1; example_2]
 
 let () =
   List.iteri (fun i (lhs, rhs) -> run_example ~i lhs rhs) examples
